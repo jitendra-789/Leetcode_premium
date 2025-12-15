@@ -20,7 +20,18 @@ type SortOrder = 'asc' | 'desc' | 'none';
 export default function CompanyDetail({ name, data }: { name: string, data: Record<string, Problem[]> }) {
     const [activeTab, setActiveTab] = useState<Duration>("Six Months");
     const [sortOrder, setSortOrder] = useState<SortOrder>('none');
+    const [direction, setDirection] = useState(0);
     const { toggleProblem, isCompleted } = useProgress();
+
+    // Define tab order for index comparison
+    const tabs: Duration[] = ["Thirty Days", "Three Months", "Six Months", "More Than Six Months", "All"];
+
+    const handleTabChange = (newTab: Duration) => {
+        const currentIndex = tabs.indexOf(activeTab);
+        const newIndex = tabs.indexOf(newTab);
+        setDirection(newIndex > currentIndex ? 1 : -1);
+        setActiveTab(newTab);
+    };
 
     const problems = data[activeTab] || [];
 
@@ -53,6 +64,23 @@ export default function CompanyDetail({ name, data }: { name: string, data: Reco
         }
     };
 
+    const variants = {
+        enter: (direction: number) => ({
+            x: direction > 0 ? 50 : -50,
+            opacity: 0
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1
+        },
+        exit: (direction: number) => ({
+            zIndex: 0,
+            x: direction < 0 ? 50 : -50,
+            opacity: 0
+        })
+    };
+
     return (
         <div className="min-h-screen p-6 md:p-12 pb-24">
             <div className="max-w-7xl mx-auto">
@@ -74,10 +102,10 @@ export default function CompanyDetail({ name, data }: { name: string, data: Reco
                 {/* Tabs */}
                 <div className="mb-8 overflow-x-auto pb-2 scrollbar-none flex justify-center">
                     <div className="flex gap-2 p-1.5 bg-card/50 backdrop-blur-md rounded-2xl border border-border w-fit shadow-sm">
-                        {(["Thirty Days", "Three Months", "Six Months", "More Than Six Months", "All"] as Duration[]).map((tab) => (
+                        {tabs.map((tab) => (
                             <button
                                 key={tab}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => handleTabChange(tab)}
                                 className={cn(
                                     "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 whitespace-nowrap",
                                     activeTab === tab
@@ -92,13 +120,18 @@ export default function CompanyDetail({ name, data }: { name: string, data: Reco
                 </div>
 
                 {/* Table */}
-                <AnimatePresence mode='wait'>
+                <AnimatePresence mode='wait' custom={direction}>
                     <motion.div
                         key={activeTab}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
+                        custom={direction}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                            x: { type: "spring", stiffness: 300, damping: 30 },
+                            opacity: { duration: 0.2 }
+                        }}
                         className="bg-card/70 border border-border rounded-3xl overflow-hidden shadow-xl backdrop-blur-sm"
                     >
                         <div className="overflow-x-auto">
