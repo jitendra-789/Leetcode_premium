@@ -215,10 +215,28 @@ export default function CompanyDetail({ name, data }: { name: string, data: Reco
                                     {sortedProblems.length === 0 && (
                                         <tr>
                                             <td colSpan={5} className="p-16 text-center text-muted-foreground">
-                                                <div className="flex flex-col items-center">
-                                                    <Calendar className="w-12 h-12 text-muted-foreground/50 mb-4" />
-                                                    <p className="text-lg font-medium">No questions found</p>
-                                                    <p className="text-sm">Try selecting a different time period.</p>
+                                                <div className="flex flex-col items-center justify-center py-10">
+                                                    {Object.values(data).every(p => p.length === 0) ? (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.9 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            className="text-center space-y-4"
+                                                        >
+                                                            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                                <Calendar className="w-10 h-10 text-primary animate-pulse" />
+                                                            </div>
+                                                            <h3 className="text-2xl font-bold text-foreground">Coming Soon</h3>
+                                                            <p className="max-w-md mx-auto text-muted-foreground">
+                                                                We're working hard to gather the latest interview questions for {name}. Please check back later!
+                                                            </p>
+                                                        </motion.div>
+                                                    ) : (
+                                                        <>
+                                                            <Calendar className="w-12 h-12 text-muted-foreground/50 mb-4" />
+                                                            <p className="text-lg font-medium">No questions found</p>
+                                                            <p className="text-sm">Try selecting a different time period.</p>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

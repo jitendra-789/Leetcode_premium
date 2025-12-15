@@ -7,12 +7,18 @@ const COMPANIES_DIR = path.resolve(process.cwd(), '../Companies');
 
 export async function getCompanies(): Promise<Company[]> {
     try {
-        const jsonPath = path.join(COMPANIES_DIR, 'companies.json');
-        const data = await fs.readFile(jsonPath, 'utf-8');
-        const names: string[] = JSON.parse(data);
-        return names.sort().map(name => ({ name }));
+        // Read directory contents
+        const entries = await fs.readdir(COMPANIES_DIR, { withFileTypes: true });
+
+        // Filter for directories only and excluding hidden/system files
+        const companyNames = entries
+            .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+            .map(entry => entry.name)
+            .sort((a, b) => a.localeCompare(b)); // Ensure alphabetical order
+
+        return companyNames.map(name => ({ name }));
     } catch (error) {
-        console.error("Error reading companies:", error);
+        console.error("Error reading companies directory:", error);
         return [];
     }
 }
