@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
 
 interface UserProgress {
     completedProblems: string[]; // List of problem titles or unique IDs
@@ -16,50 +15,44 @@ interface ProgressContextType {
     user: { name: string; email: string; image: string } | null;
     toggleProblem: (id: string) => void;
     isCompleted: (id: string) => boolean;
-    practiceDates: string[];
+    login: () => void;
+    logout: () => void;
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
-    const { data: session } = useSession(); // Added useSession hook
     const [completedProblems, setCompletedProblems] = useState<string[]>([]);
     const [streak, setStreak] = useState(0);
     const [lastVisit, setLastVisit] = useState<string | null>(null);
-    const [practiceDates, setPracticeDates] = useState<string[]>([]); // URLs/ISO dates of practice
-    // const [user, setUser] = useState<{ name: string; email: string; image: string } | null>(null); // Removed, user state comes from session
+    const [user, setUser] = useState<{ name: string; email: string; image: string } | null>(null);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
-        // Load from local storage, optionally using user ID as key suffix
-        const storageKey = session?.user?.email ? `leetcode-progress-${session.user.email}` : 'leetcode-progress';
-        const saved = localStorage.getItem(storageKey);
-
+        // Load from local storage
+        const saved = localStorage.getItem('leetcode-progress');
         if (saved) {
             const parsed = JSON.parse(saved);
             setCompletedProblems(parsed.completedProblems || []);
             setStreak(parsed.streak || 0);
             setLastVisit(parsed.lastVisit || null);
-            setPracticeDates(parsed.practiceDates || []);
-            // setUser(parsed.user || null); // Removed
+            setUser(parsed.user || null);
             checkStreak(parsed.streak, parsed.lastVisit);
         } else {
             checkStreak(0, null);
         }
-    }, [session]); // Re-run when session changes
+    }, []);
 
     useEffect(() => {
         if (!mounted) return;
-        const storageKey = session?.user?.email ? `leetcode-progress-${session.user.email}` : 'leetcode-progress';
-        localStorage.setItem(storageKey, JSON.stringify({
+        localStorage.setItem('leetcode-progress', JSON.stringify({
             completedProblems,
             streak,
             lastVisit,
-            practiceDates,
-            // user // Removed from local storage payload
+            user
         }));
-    }, [completedProblems, streak, lastVisit, practiceDates, session, mounted]); // Added session to dependencies
+    }, [completedProblems, streak, lastVisit, user, mounted]);
 
     const checkStreak = (currentStreak: number, lastDate: string | null) => {
         const today = new Date().toDateString();
@@ -89,48 +82,30 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     };
 
     const toggleProblem = (id: string) => {
-        const today = new Date().toDateString();
-        setCompletedProblems(prev => {
-            const isCompleted = prev.includes(id);
-            if (!isCompleted) {
-                // If marking as complete, add today to practiceDates if not already there
-                setPracticeDates(dates => {
-                    if (!dates.includes(today)) return [...dates, today];
-                    return dates;
-                });
-                return [...prev, id];
-            } else {
-                return prev.filter(p => p !== id);
-            }
-        });
+        setCompletedProblems(prev =>
+            prev.includes(id)
+                ? prev.filter(p => p !== id)
+                : [...prev, id]
+        );
     };
 
     const isCompleted = (id: string) => completedProblems.includes(id);
 
-    // Mock Login for demo purposes (since we don't have backend keys) // Removed login/logout functions
-    // const login = () => {
-    //     setUser({
-    //         name: "Demo User",
-    //         email: "demo@example.com",
-    //         image: "https://github.com/shadcn.png"
-    //     });
-    // };
+    // Mock Login for demo purposes (since we don't have backend keys)
+    const login = () => {
+        setUser({
+            name: "Demo User",
+            email: "demo@example.com",
+            image: "https://github.com/shadcn.png"
+        });
+    };
 
-    // const logout = () => {
-    //     setUser(null);
-    // };
+    const logout = () => {
+        setUser(null);
+    };
 
     return (
-        <ProgressContext.Provider value={{
-            completedProblems,
-            streak,
-            user: session?.user ? { name: session.user.name || '', email: session.user.email || '', image: session.user.image || '' } : null, // User state from session
-            toggleProblem,
-            isCompleted,
-            practiceDates
-            // login, // Removed
-            // logout // Removed
-        }}>
+        <ProgressContext.Provider value={{ completedProblems, streak, user, toggleProblem, isCompleted, login, logout }}>
             {children}
         </ProgressContext.Provider>
     );

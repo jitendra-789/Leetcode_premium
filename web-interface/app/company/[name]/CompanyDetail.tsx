@@ -72,7 +72,7 @@ export default function CompanyDetail({ name, data }: { name: string, data: Reco
                 <AnalysisCard totalProblems={problems.length} problems={problems} />
 
                 {/* Tabs */}
-                <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
+                <div className="mb-8 overflow-x-auto pb-2 scrollbar-none flex justify-center">
                     <div className="flex gap-2 p-1.5 bg-card/50 backdrop-blur-md rounded-2xl border border-border w-fit shadow-sm">
                         {(["Thirty Days", "Three Months", "Six Months", "More Than Six Months", "All"] as Duration[]).map((tab) => (
                             <button

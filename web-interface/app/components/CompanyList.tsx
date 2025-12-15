@@ -47,60 +47,44 @@ export default function CompanyList({ companies }: { companies: Company[] }) {
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
                 {filtered.map((company) => (
-                    <motion.div
-                        key={company.name}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    >
-                        <Link href={`/company/${encodeURIComponent(company.name)}`}>
-                            <div className="bg-card rounded-2xl p-6 h-full flex flex-col items-center justify-center text-center group hover:bg-card/80 dark:hover:bg-card/50 transition-all duration-300 relative overflow-hidden border border-border">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <motion.div key={company.name} variants={item}>
+                        <Link
+                            href={`/company/${encodeURIComponent(company.name)}`}
+                            className="group relative block p-6 bg-card border border-border rounded-xl hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-accent-gradient-end/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                                <div className="w-16 h-16 mb-4 rounded-xl bg-white dark:bg-white/10 p-2 shadow-md flex items-center justify-center relative z-10 overflow-hidden">
-                                    <img
-                                        src={`https://logo.clearbit.com/${company.name.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '')}.com`}
-                                        alt={`${company.name} logo`}
-                                        className="w-full h-full object-contain"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).style.display = 'none';
-                                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                        }}
-                                    />
-                                    <div className="hidden w-full h-full flex items-center justify-center bg-primary/20 text-primary font-bold text-2xl rounded-lg">
-                                        {company.name.charAt(0)}
-                                    </div>
-                                </div>
-
-                                <h2 className="text-lg font-bold text-card-foreground group-hover:text-primary transition-colors relative z-10">
+                            <div className="relative flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-card-foreground group-hover:text-primary transition-colors truncate">
                                     {company.name}
-                                </h2>
-                                <p className="relative mt-2 text-xs font-medium text-muted-foreground uppercase tracking-wider group-hover:text-primary/80 transition-colors">
-                                    View Questions
-                                </p>
+                                </h3>
+                                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                    <span className="text-muted-foreground group-hover:text-primary transition-colors text-lg leading-none">&rarr;</span>
+                                </div>
                             </div>
+
+                            <p className="relative mt-4 text-xs font-medium text-muted-foreground uppercase tracking-wider group-hover:text-primary/80 transition-colors">
+                                View Questions
+                            </p>
                         </Link>
                     </motion.div>
                 ))}
             </motion.div>
 
-            {
-                filtered.length === 0 && (
-                    <div className="text-center py-20">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="inline-flex flex-col items-center"
-                        >
-                            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                                <Search className="w-8 h-8 text-muted-foreground/50" />
-                            </div>
-                            <p className="text-muted-foreground text-lg">No companies found matching "{search}"</p>
-                        </motion.div>
-                    </div>
-                )
-            }
-        </div >
+            {filtered.length === 0 && (
+                <div className="text-center py-20">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="inline-flex flex-col items-center"
+                    >
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                            <Search className="w-8 h-8 text-muted-foreground/50" />
+                        </div>
+                        <p className="text-muted-foreground text-lg">No companies found matching "{search}"</p>
+                    </motion.div>
+                </div>
+            )}
+        </div>
     );
 }

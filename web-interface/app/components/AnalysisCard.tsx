@@ -1,8 +1,9 @@
+'use client';
+
 import { useProgress } from '@/app/context/ProgressContext';
 import { motion } from 'framer-motion';
-import { Trophy, CheckCircle, Zap, Flame, User as UserIcon, LogIn, Calendar as CalendarIcon } from 'lucide-react';
+import { Trophy, CheckCircle, Zap, Flame, User as UserIcon, LogIn } from 'lucide-react';
 import { Problem } from '@/app/types';
-import { signIn, signOut } from 'next-auth/react';
 
 interface AnalysisProps {
     totalProblems: number;
@@ -10,7 +11,7 @@ interface AnalysisProps {
 }
 
 export function AnalysisCard({ totalProblems, problems }: AnalysisProps) {
-    const { streak, completedProblems, user } = useProgress();
+    const { streak, completedProblems } = useProgress();
 
     // Filter problems relevant to the current view (Company/Duration)
     const currentViewProblemIds = problems.map(p => p.Title);
@@ -32,10 +33,10 @@ export function AnalysisCard({ totalProblems, problems }: AnalysisProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10"
+            className="mb-10"
         >
             {/* Main Progress Card */}
-            <div className="lg:col-span-3 bg-card/70 backdrop-blur-md border border-border rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+            <div className="w-full bg-card/70 backdrop-blur-md border border-border rounded-3xl p-6 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Trophy className="w-32 h-32 text-primary rotate-12" />
                 </div>
@@ -126,66 +127,6 @@ export function AnalysisCard({ totalProblems, problems }: AnalysisProps) {
                     </div>
                 </div>
             </div>
-
-            {/* Calendar Card */}
-            <div className="lg:col-span-1 bg-card/70 backdrop-blur-md border border-border rounded-3xl p-6 shadow-xl flex flex-col items-center justify-center">
-                <h4 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                    <CalendarIcon className="w-5 h-5 text-primary" />
-                    Activity
-                </h4>
-                <div className="w-full max-w-[280px]">
-                    <ActivityCalendar />
-                </div>
-            </div>
         </motion.div>
-    );
-}
-
-function ActivityCalendar() {
-    const { practiceDates } = useProgress();
-    const today = new Date();
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-
-    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const empties = Array.from({ length: firstDay }, (_, i) => i);
-
-    // Helper to check if a date (day number in current month) is in practiceDates
-    const isActive = (day: number) => {
-        const dateStr = new Date(today.getFullYear(), today.getMonth(), day).toDateString();
-        return practiceDates.includes(dateStr);
-    };
-
-    return (
-        <div className="w-full">
-            <div className="flex justify-between items-center mb-4 text-sm font-semibold text-muted-foreground">
-                <span>{today.toLocaleDateString('default', { month: 'long', year: 'numeric' })}</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                    <span key={d} className="text-muted-foreground/60 font-medium">{d}</span>
-                ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1.5">
-                {empties.map(i => <div key={`empty-${i}`} />)}
-                {days.map(day => {
-                    const active = isActive(day);
-                    const isToday = day === today.getDate();
-                    return (
-                        <div
-                            key={day}
-                            className={`
-                                aspect-square rounded-full flex items-center justify-center text-[10px] font-semibold transition-all duration-300 relative
-                                ${active ? 'bg-primary text-primary-foreground shadow-md scale-110' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}
-                                ${isToday && !active ? 'ring-1 ring-primary text-primary' : ''}
-                            `}
-                        >
-                            {day}
-                            {active && <div className="absolute inset-0 bg-primary rounded-full animate-pulse opacity-50 z-[-1]"></div>}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
     );
 }
