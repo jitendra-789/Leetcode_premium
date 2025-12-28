@@ -96,6 +96,10 @@ web-interface/
 └── ...
 ```
 
-## 📝 License
+## � Acknowledgments
+
+Special thanks to [liquidslr/leetcode-company-wise-problems](https://github.com/liquidslr/leetcode-company-wise-problems) for providing the comprehensive dataset of company-wise Leetcode problems that powers this application.
+
+## �📝 License
 
 This project is for personal educational use.
